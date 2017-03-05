@@ -23,8 +23,6 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayoutManager mLayoutManager;
     private RecyclerAdapter mAdapter;
     private ArrayList<RecyclerItem> myDataSet;
-    private int mBatteryCharge;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,29 +49,30 @@ public class MainActivity extends AppCompatActivity {
     private void loadData() {
         //Summary with progress bars
             //RAM, Internal storage, [External storage], CPU load, Battery
-        //Device
-            //model, manufacturer, device, board, hardware, brand
-            //Hardware serial, IP address IPv4+IPv6, Wifi Mac address, Bluetooth Mac address, build fingerprint
-        //System
-            //version, api number+codename, bootloader, build number, radio version, kernel, android runtime, uptime
-        //CPU
-            //CPU hardware, cores, clock speed, Running CPUs (instant clock speed for each core), CPU load
-        //Display
-            //Resolution in pixels, density value+dpi category, font scale, physical size inches, refresh rate
-        //Battery
-            //level, status, power source, health, technology, temperature, voltage, capacity
-        //Memory/Storage
-            //RAM: free abs MB+%; used abs+%; total abs, ROM == internal storage (free, used, total), Internal storage path (/storage/emulated/0), External storage path + free, used, total
-        //Sensors
-            //Accel, light, gyro, barometer, step, magnetometer, proximity, ...
         //Export report: text dump of all data except summary
+
+        //Device
+        //model, manufacturer, device, board, hardware, brand
+        //Hardware serial, IP address IPv4+IPv6, Wifi Mac address, Bluetooth Mac address, build fingerprint
         loadDeviceData();
+        //System
+        //version, api number+codename, bootloader, build number, radio version, kernel, android runtime, uptime
         loadSystemData();
+        //CPU
+        //CPU hardware, cores, clock speed, Running CPUs (instant clock speed for each core), CPU load
         loadCPUData();
+        //Display
+        //Resolution in pixels, density value+dpi category, font scale, physical size inches, refresh rate
         loadDisplayData();
+        //Battery
+        //level, status, power source, health, technology, temperature, voltage, capacity
         loadBatteryData();
+        //Memory/Storage
+        //RAM: free abs MB+%; used abs+%; total abs, ROM == internal storage (free, used, total), Internal storage path (/storage/emulated/0), External storage path + free, used, total
         loadMemoryData();
         loadStorageData();
+        //Sensors
+        //Accel, light, gyro, barometer, step, magnetometer, proximity, ...
         loadSensorsData();
     }
 
@@ -104,6 +103,11 @@ public class MainActivity extends AppCompatActivity {
         //getBatteryCharge();
         //TODO: use a BroadcastReceiver for getting BatteryStatus updates
         Intent intent = this.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        //charge level
+        int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+        int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+        int batteryCharge = level / scale * 100;
+        myDataSet.add(new RecyclerItem("Battery level", batteryCharge + "%")); //FIXME: not working, always reports 0
         //status
         int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
         boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING || status == BatteryManager.BATTERY_STATUS_FULL;
@@ -121,11 +125,6 @@ public class MainActivity extends AppCompatActivity {
             plug = "Unknown";
         }
         myDataSet.add(new RecyclerItem("Charging through", plug));
-        //charge level
-        int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
-        int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
-        int batteryCharge = level / scale * 100;
-        myDataSet.add(new RecyclerItem("Battery level", batteryCharge + "%")); //FIXME: not working, always reports 0
         //health
         int health = intent.getIntExtra(BatteryManager.EXTRA_HEALTH, -1);
         String healthState;
@@ -149,15 +148,15 @@ public class MainActivity extends AppCompatActivity {
         int temp = intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1);
         float realTemp = temp / 10.f;
         myDataSet.add(new RecyclerItem("Battery temperature", realTemp + " C"));
-        //tech
-        String tech = intent.getStringExtra(BatteryManager.EXTRA_TECHNOLOGY);
-        myDataSet.add(new RecyclerItem("Battery technology", tech));
         //volt
         int voltage = intent.getIntExtra(BatteryManager.EXTRA_VOLTAGE, -1);
         myDataSet.add(new RecyclerItem("Battery voltage", voltage + " mV"));
+        //tech
+        String tech = intent.getStringExtra(BatteryManager.EXTRA_TECHNOLOGY);
+        myDataSet.add(new RecyclerItem("Battery technology", tech));
         //capacity
-        int currentCapacity = BatteryManager.BATTERY_PROPERTY_CAPACITY;
-        int currentCharging = BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER;
+        int currentCapacity = BatteryManager.BATTERY_PROPERTY_CAPACITY; //TODO: protect this with a version_code check
+        int currentCharging = BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER; //TODO: protect this with a version_code check
         myDataSet.add(new RecyclerItem("Battery capacity", currentCapacity + " capacity, " + currentCharging + " mAh")); //FIXME: not really working
     }
 
