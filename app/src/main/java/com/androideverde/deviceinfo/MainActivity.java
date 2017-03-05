@@ -191,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
                 int currentLevel = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
                 int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
                 if (currentLevel >= 0 && scale > 0) {
-                    mBatteryCharge = currentLevel / scale * 100;
+                    //mBatteryCharge = currentLevel / scale * 100;
                 }
             }
         };
