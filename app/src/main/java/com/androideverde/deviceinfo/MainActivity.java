@@ -101,9 +101,64 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadBatteryData() {
-        getBatteryCharge();
-        boolean batteryCharging = getBatteryStatus();
-        myDataSet.add(new RecyclerItem("Battery", mBatteryCharge + "%, " + (batteryCharging ? "charging" : "not charging")));
+        //getBatteryCharge();
+        //TODO: use a BroadcastReceiver for getting BatteryStatus updates
+        Intent intent = this.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        //status
+        int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+        boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING || status == BatteryManager.BATTERY_STATUS_FULL;
+        myDataSet.add(new RecyclerItem("Battery status", (isCharging ? "charging" : "discharging")));
+        //charging method
+        int plugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
+        String plug;
+        if (plugged == BatteryManager.BATTERY_PLUGGED_AC) {
+            plug = "AC";
+        } else if (plugged == BatteryManager.BATTERY_PLUGGED_USB) {
+            plug = "USB";
+        } else if (plugged == BatteryManager.BATTERY_PLUGGED_WIRELESS) {
+            plug = "Wireless";
+        } else {
+            plug = "Unknown";
+        }
+        myDataSet.add(new RecyclerItem("Charging through", plug));
+        //charge level
+        int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+        int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+        int batteryCharge = level / scale * 100;
+        myDataSet.add(new RecyclerItem("Battery level", batteryCharge + "%")); //FIXME: not working, always reports 0
+        //health
+        int health = intent.getIntExtra(BatteryManager.EXTRA_HEALTH, -1);
+        String healthState;
+        if (health == BatteryManager.BATTERY_HEALTH_GOOD) {
+            healthState = "Good";
+        } else if (health == BatteryManager.BATTERY_HEALTH_COLD) {
+            healthState = "Cold";
+        } else if (health == BatteryManager.BATTERY_HEALTH_DEAD) {
+            healthState = "Dead";
+        } else if (health == BatteryManager.BATTERY_HEALTH_OVER_VOLTAGE) {
+            healthState = "Over voltage";
+        } else if (health == BatteryManager.BATTERY_HEALTH_OVERHEAT) {
+            healthState = "Overheating";
+        } else if (health == BatteryManager.BATTERY_HEALTH_UNSPECIFIED_FAILURE) {
+            healthState = "Unspecified failure";
+        } else {
+            healthState = "Unknown";
+        }
+        myDataSet.add(new RecyclerItem("Battery health", healthState));
+        //temp
+        int temp = intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1);
+        float realTemp = temp / 10.f;
+        myDataSet.add(new RecyclerItem("Battery temperature", realTemp + " C"));
+        //tech
+        String tech = intent.getStringExtra(BatteryManager.EXTRA_TECHNOLOGY);
+        myDataSet.add(new RecyclerItem("Battery technology", tech));
+        //volt
+        int voltage = intent.getIntExtra(BatteryManager.EXTRA_VOLTAGE, -1);
+        myDataSet.add(new RecyclerItem("Battery voltage", voltage + " mV"));
+        //capacity
+        int currentCapacity = BatteryManager.BATTERY_PROPERTY_CAPACITY;
+        int currentCharging = BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER;
+        myDataSet.add(new RecyclerItem("Battery capacity", currentCapacity + " capacity, " + currentCharging + " mAh")); //FIXME: not really working
     }
 
     private void loadMemoryData() {
@@ -125,16 +180,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadSensorsData() {
         //TODO: add stuff here
-    }
-
-    //TODO: use a BroadcastReceiver for getting BatteryStatus (charging/not charging)
-    //TODO: discriminate and report the source of charging
-    private boolean getBatteryStatus() {
-        boolean isPlugged = false;
-        Intent intent = this.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-        int plugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
-        isPlugged = plugged == BatteryManager.BATTERY_PLUGGED_AC || plugged == BatteryManager.BATTERY_PLUGGED_USB ||plugged == BatteryManager.BATTERY_PLUGGED_WIRELESS;
-        return isPlugged;
     }
 
     //TODO: change BroadcastReceiver to be alive and updating data while app is in foreground
