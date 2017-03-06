@@ -80,12 +80,21 @@ public class MainActivity extends AppCompatActivity {
         myDataSet.add(new RecyclerItem("Device", Build.DEVICE));
         myDataSet.add(new RecyclerItem("Manufacturer", Build.MANUFACTURER));
         myDataSet.add(new RecyclerItem("Model", Build.MODEL));
+        myDataSet.add(new RecyclerItem("Brand", Build.BRAND));
         myDataSet.add(new RecyclerItem("Product", Build.PRODUCT));
+        myDataSet.add(new RecyclerItem("Board", Build.BOARD));
+        myDataSet.add(new RecyclerItem("Fingerprint", Build.FINGERPRINT));
+        myDataSet.add(new RecyclerItem("Hardware", Build.HARDWARE));
+        myDataSet.add(new RecyclerItem("Serial", Build.SERIAL));
     }
 
 
     private void loadSystemData() {
         myDataSet.add(new RecyclerItem("OS Version", Build.VERSION.RELEASE + " (API level " + Build.VERSION.SDK_INT + ")"));
+        myDataSet.add(new RecyclerItem("Codename", Build.VERSION.CODENAME));
+        myDataSet.add(new RecyclerItem("Base OS", Build.VERSION.BASE_OS));
+        myDataSet.add(new RecyclerItem("Display ID", Build.DISPLAY));
+        myDataSet.add(new RecyclerItem("Build ID", Build.ID));
     }
 
     private void loadCPUData() {
