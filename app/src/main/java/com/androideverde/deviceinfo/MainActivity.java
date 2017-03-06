@@ -17,6 +17,8 @@ import android.util.DisplayMetrics;
 
 import java.util.ArrayList;
 
+
+
 public class MainActivity extends AppCompatActivity {
 
     private RecyclerView mRecyclerView;
@@ -83,7 +85,6 @@ public class MainActivity extends AppCompatActivity {
         myDataSet.add(new RecyclerItem("Brand", Build.BRAND));
         myDataSet.add(new RecyclerItem("Product", Build.PRODUCT));
         myDataSet.add(new RecyclerItem("Board", Build.BOARD));
-        myDataSet.add(new RecyclerItem("Fingerprint", Build.FINGERPRINT));
         myDataSet.add(new RecyclerItem("Hardware", Build.HARDWARE));
         myDataSet.add(new RecyclerItem("Serial", Build.SERIAL));
     }
@@ -92,9 +93,13 @@ public class MainActivity extends AppCompatActivity {
     private void loadSystemData() {
         myDataSet.add(new RecyclerItem("OS Version", Build.VERSION.RELEASE + " (API level " + Build.VERSION.SDK_INT + ")"));
         myDataSet.add(new RecyclerItem("Codename", Build.VERSION.CODENAME));
-        myDataSet.add(new RecyclerItem("Base OS", Build.VERSION.BASE_OS));
+        myDataSet.add(new RecyclerItem("Bootloader", Build.BOOTLOADER));
+        myDataSet.add(new RecyclerItem("Radio", (Build.VERSION.SDK_INT >= 14) ? Build.getRadioVersion() : Build.RADIO));
+        myDataSet.add(new RecyclerItem("Base OS", (Build.VERSION.SDK_INT >= 23) ? Build.VERSION.BASE_OS : "N/A"));
+        myDataSet.add(new RecyclerItem("Fingerprint", Build.FINGERPRINT));
         myDataSet.add(new RecyclerItem("Display ID", Build.DISPLAY));
         myDataSet.add(new RecyclerItem("Build ID", Build.ID));
+        myDataSet.add(new RecyclerItem("Kernel", System.getProperty("os.name") + "-" + System.getProperty("os.arch") + "-" + System.getProperty("os.version")));
     }
 
     private void loadCPUData() {
@@ -164,8 +169,8 @@ public class MainActivity extends AppCompatActivity {
         String tech = intent.getStringExtra(BatteryManager.EXTRA_TECHNOLOGY);
         myDataSet.add(new RecyclerItem("Battery technology", tech));
         //capacity
-        int currentCapacity = BatteryManager.BATTERY_PROPERTY_CAPACITY; //TODO: protect this with a version_code check
-        int currentCharging = BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER; //TODO: protect this with a version_code check
+        int currentCapacity = (Build.VERSION.SDK_INT >= 21) ? BatteryManager.BATTERY_PROPERTY_CAPACITY : -1;
+        int currentCharging = (Build.VERSION.SDK_INT >= 21) ? BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER : -1;
         myDataSet.add(new RecyclerItem("Battery capacity", currentCapacity + " capacity, " + currentCharging + " mAh")); //FIXME: not really working
     }
 
@@ -173,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
         ActivityManager.MemoryInfo memInfo = new ActivityManager.MemoryInfo();
         ActivityManager activityManager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
         activityManager.getMemoryInfo(memInfo);
-        long totalRAM = memInfo.totalMem / 1024 / 1024; //TODO: protect this with a version_code check
+        long totalRAM = (Build.VERSION.SDK_INT >= 16) ? memInfo.totalMem / 1024 / 1024 : -1;
         long freeRAM = memInfo.availMem / 1024 / 1024;
         myDataSet.add(new RecyclerItem("RAM", freeRAM + " MB available out of " + totalRAM + " MB"));
         myDataSet.add(new RecyclerItem("Currently in low-memory condition?", memInfo.lowMemory ? "yes" : "no"));
@@ -181,8 +186,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadStorageData() {
         StatFs fs = new StatFs(Environment.getRootDirectory().getAbsolutePath());
-        long totalFs = fs.getBlockCountLong() * fs.getBlockSizeLong() / 1024 / 1024; //TODO: protect this with a version_code check
-        long freeFs = fs.getAvailableBlocksLong() * fs.getBlockSizeLong() / 1024 / 1024; //TODO: protect this with a version_code check
+        long totalFs = (Build.VERSION.SDK_INT >= 18) ? fs.getBlockCountLong() * fs.getBlockSizeLong() / 1024 / 1024 : -1;
+        long freeFs = (Build.VERSION.SDK_INT >= 18) ? fs.getAvailableBlocksLong() * fs.getBlockSizeLong() / 1024 / 1024 : -1;
         myDataSet.add(new RecyclerItem("Disk space", freeFs + " MB available out of " + totalFs + " MB"));
     }
 
