@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Point;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -50,21 +51,18 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadData() {
         //Summary with progress bars
-            //RAM, Internal storage, [External storage], CPU load, Battery
+        //RAM, Internal storage, [External storage], CPU load, Battery
         //Export report: text dump of all data except summary
 
         //Device
-        //model, manufacturer, device, board, hardware, brand
-        //Hardware serial, IP address IPv4+IPv6, Wifi Mac address, Bluetooth Mac address, build fingerprint
+        //IP address IPv4+IPv6, Wifi Mac address, Bluetooth Mac address
         loadDeviceData();
         //System
-        //version, api number+codename, bootloader, build number, radio version, kernel, android runtime, uptime
+        //android runtime, uptime
         loadSystemData();
         //CPU
         //CPU hardware, cores, clock speed, Running CPUs (instant clock speed for each core), CPU load
         loadCPUData();
-        //Display
-        //Resolution in pixels, density value+dpi category, font scale, physical size inches, refresh rate
         loadDisplayData();
         //Battery
         //level, status, power source, health, technology, temperature, voltage, capacity
@@ -94,7 +92,11 @@ public class MainActivity extends AppCompatActivity {
         myDataSet.add(new RecyclerItem("OS Version", Build.VERSION.RELEASE + " (API level " + Build.VERSION.SDK_INT + ")"));
         myDataSet.add(new RecyclerItem("Codename", Build.VERSION.CODENAME));
         myDataSet.add(new RecyclerItem("Bootloader", Build.BOOTLOADER));
-        myDataSet.add(new RecyclerItem("Radio", (Build.VERSION.SDK_INT >= 14) ? Build.getRadioVersion() : Build.RADIO));
+        String radio = Build.RADIO;
+        if (Build.VERSION.SDK_INT >= 14) {
+            radio = Build.getRadioVersion();
+        }
+        myDataSet.add(new RecyclerItem("Radio", radio));
         myDataSet.add(new RecyclerItem("Base OS", (Build.VERSION.SDK_INT >= 23) ? Build.VERSION.BASE_OS : "N/A"));
         myDataSet.add(new RecyclerItem("Fingerprint", Build.FINGERPRINT));
         myDataSet.add(new RecyclerItem("Display ID", Build.DISPLAY));
@@ -109,8 +111,34 @@ public class MainActivity extends AppCompatActivity {
     private void loadDisplayData() {
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        myDataSet.add(new RecyclerItem("Display size", metrics.heightPixels + " x " + metrics.widthPixels + " pixels"));
-        myDataSet.add(new RecyclerItem("Display density", metrics.densityDpi + " dpi"));
+        Point point = new Point();
+        if (Build.VERSION.SDK_INT >= 17) {
+            getWindowManager().getDefaultDisplay().getRealSize(point);
+        } else {
+            point.set(0, 0);
+        }
+        double diagonal = Math.sqrt(point.x * point.x + point.y * point.y) / metrics.densityDpi;
+        String density = "N/A";
+        if (metrics.densityDpi < DisplayMetrics.DENSITY_LOW) {
+            density = "N/A";
+        } else if (metrics.densityDpi < DisplayMetrics.DENSITY_MEDIUM) {
+            density = "ldpi";
+        } else if (metrics.densityDpi < DisplayMetrics.DENSITY_HIGH) {
+            density = "mdpi";
+        } else if (metrics.densityDpi < DisplayMetrics.DENSITY_XHIGH) {
+            density = "hdpi";
+        } else if (metrics.densityDpi < DisplayMetrics.DENSITY_XXHIGH) {
+            density = "xhdpi";
+        } else if (metrics.densityDpi < DisplayMetrics.DENSITY_XXXHIGH) {
+            density = "xxhdpi";
+        } else if (metrics.densityDpi >= DisplayMetrics.DENSITY_XXXHIGH) {
+            density = "xxxhdpi";
+        } else {
+            density = "N/A";
+        }
+        myDataSet.add(new RecyclerItem("Display size", metrics.heightPixels + " x " + metrics.widthPixels + " pixels (" + String.format("%.2f", diagonal) + " inches)"));
+        myDataSet.add(new RecyclerItem("Display density", metrics.densityDpi + " dpi (" + density + ")"));
+        myDataSet.add(new RecyclerItem("Refresh rate", String.format("%.0f", getWindowManager().getDefaultDisplay().getRefreshRate()) + " Hz"));
     }
 
     private void loadBatteryData() {
@@ -178,7 +206,10 @@ public class MainActivity extends AppCompatActivity {
         ActivityManager.MemoryInfo memInfo = new ActivityManager.MemoryInfo();
         ActivityManager activityManager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
         activityManager.getMemoryInfo(memInfo);
-        long totalRAM = (Build.VERSION.SDK_INT >= 16) ? memInfo.totalMem / 1024 / 1024 : -1;
+        long totalRAM = -1;
+        if (Build.VERSION.SDK_INT >= 16) {
+            totalRAM = memInfo.totalMem / 1024 / 1024;
+        }
         long freeRAM = memInfo.availMem / 1024 / 1024;
         myDataSet.add(new RecyclerItem("RAM", freeRAM + " MB available out of " + totalRAM + " MB"));
         myDataSet.add(new RecyclerItem("Currently in low-memory condition?", memInfo.lowMemory ? "yes" : "no"));
@@ -186,8 +217,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadStorageData() {
         StatFs fs = new StatFs(Environment.getRootDirectory().getAbsolutePath());
-        long totalFs = (Build.VERSION.SDK_INT >= 18) ? fs.getBlockCountLong() * fs.getBlockSizeLong() / 1024 / 1024 : -1;
-        long freeFs = (Build.VERSION.SDK_INT >= 18) ? fs.getAvailableBlocksLong() * fs.getBlockSizeLong() / 1024 / 1024 : -1;
+        long totalFs = -1;
+        long freeFs = -1;
+        if (Build.VERSION.SDK_INT >= 18) {
+            totalFs = fs.getBlockCountLong() * fs.getBlockSizeLong() / 1024 / 1024;
+            freeFs = fs.getAvailableBlocksLong() * fs.getBlockSizeLong() / 1024 / 1024;
+        }
         myDataSet.add(new RecyclerItem("Disk space", freeFs + " MB available out of " + totalFs + " MB"));
     }
 
