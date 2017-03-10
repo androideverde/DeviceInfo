@@ -62,10 +62,10 @@ public class MainActivity extends AppCompatActivity {
         loadMemoryData();
         loadStorageData();
         loadSensorsData();
+        loadNetworkData();
     }
 
     private void loadDeviceData() {
-        //TODO: add IP address IPv4, IPv6
         //TODO: add wifi MAC address
         //TODO: add bluetooth MAC address
         myDataSet.add(new RecyclerItem("Device", Build.DEVICE));
@@ -237,6 +237,12 @@ public class MainActivity extends AppCompatActivity {
         //TODO: add data from step sensor
         //TODO: add data from magnetometer
         //TODO: add data from proximity sensor
+    }
+
+    private void loadNetworkData() {
+        //TODO: add IP address IPv4, IPv6
+        //TODO: add data network in use
+        //TODO: when in wifi, add name of wifi
     }
 
     //TODO: change BroadcastReceiver to be alive and updating data while app is in foreground
