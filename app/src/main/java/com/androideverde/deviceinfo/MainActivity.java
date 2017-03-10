@@ -144,8 +144,8 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = this.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
         int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
-        int batteryCharge = level / scale * 100;
-        myDataSet.add(new RecyclerItem("Battery level", batteryCharge + "%")); //FIXME: not working, always reports 0
+        int batteryCharge = 100 * level / scale;
+        myDataSet.add(new RecyclerItem("Battery level", batteryCharge + "%"));
 
         int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
         boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING || status == BatteryManager.BATTERY_STATUS_FULL;
