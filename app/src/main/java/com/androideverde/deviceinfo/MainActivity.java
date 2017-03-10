@@ -87,9 +87,7 @@ public class MainActivity extends AppCompatActivity {
         myDataSet.add(new RecyclerItem("Bootloader", Build.BOOTLOADER));
 
         String radio = Build.RADIO;
-        if (Build.VERSION.SDK_INT >= 14) {
-            radio = Build.getRadioVersion();
-        }
+        if (Build.VERSION.SDK_INT >= 14) radio = Build.getRadioVersion();
         myDataSet.add(new RecyclerItem("Radio", radio));
 
         myDataSet.add(new RecyclerItem("Base OS", (Build.VERSION.SDK_INT >= 23) ? Build.VERSION.BASE_OS : "N/A"));
@@ -117,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
             point.set(0, 0);
         }
         double diagonal = Math.sqrt(point.x * point.x + point.y * point.y) / metrics.densityDpi;
-        String density = "N/A";
+        String density;
         if (metrics.densityDpi < DisplayMetrics.DENSITY_LOW) {
             density = "N/A";
         } else if (metrics.densityDpi < DisplayMetrics.DENSITY_MEDIUM) {
@@ -185,15 +183,11 @@ public class MainActivity extends AppCompatActivity {
         }
         myDataSet.add(new RecyclerItem("Battery health", healthState));
 
-        int temp = intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1);
-        float realTemp = temp / 10.f;
+        float realTemp = intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1) / 10.f;
         myDataSet.add(new RecyclerItem("Battery temperature", realTemp + " C"));
 
-        int voltage = intent.getIntExtra(BatteryManager.EXTRA_VOLTAGE, -1);
-        myDataSet.add(new RecyclerItem("Battery voltage", voltage + " mV"));
-
-        String tech = intent.getStringExtra(BatteryManager.EXTRA_TECHNOLOGY);
-        myDataSet.add(new RecyclerItem("Battery technology", tech));
+        myDataSet.add(new RecyclerItem("Battery voltage", intent.getIntExtra(BatteryManager.EXTRA_VOLTAGE, -1) + " mV"));
+        myDataSet.add(new RecyclerItem("Battery technology", intent.getStringExtra(BatteryManager.EXTRA_TECHNOLOGY)));
 
         int currentCapacity = (Build.VERSION.SDK_INT >= 21) ? BatteryManager.BATTERY_PROPERTY_CAPACITY : -1;
         int currentCharging = (Build.VERSION.SDK_INT >= 21) ? BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER : -1;
