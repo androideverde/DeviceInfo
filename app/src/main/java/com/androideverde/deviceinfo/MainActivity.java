@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         myDataSet = new ArrayList<>();
-//        loadMockData();
+        //loadMockData();
         loadData();
         //TODO: add ImageView to Adapter, ViewHolder and data Model
         //TODO: add custom icon for ImageView depending on item
@@ -54,29 +54,20 @@ public class MainActivity extends AppCompatActivity {
         //RAM, Internal storage, [External storage], CPU load, Battery
         //Export report: text dump of all data except summary
 
-        //Device
-        //IP address IPv4+IPv6, Wifi Mac address, Bluetooth Mac address
         loadDeviceData();
-        //System
-        //android runtime, uptime
         loadSystemData();
-        //CPU
-        //CPU hardware, cores, clock speed, Running CPUs (instant clock speed for each core), CPU load
         loadCPUData();
         loadDisplayData();
-        //Battery
-        //level, status, power source, health, technology, temperature, voltage, capacity
         loadBatteryData();
-        //Memory/Storage
-        //RAM: free abs MB+%; used abs+%; total abs, ROM == internal storage (free, used, total), Internal storage path (/storage/emulated/0), External storage path + free, used, total
         loadMemoryData();
         loadStorageData();
-        //Sensors
-        //Accel, light, gyro, barometer, step, magnetometer, proximity, ...
         loadSensorsData();
     }
 
     private void loadDeviceData() {
+        //TODO: add IP address IPv4, IPv6
+        //TODO: add wifi MAC address
+        //TODO: add bluetooth MAC address
         myDataSet.add(new RecyclerItem("Device", Build.DEVICE));
         myDataSet.add(new RecyclerItem("Manufacturer", Build.MANUFACTURER));
         myDataSet.add(new RecyclerItem("Model", Build.MODEL));
@@ -89,14 +80,18 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void loadSystemData() {
+        //TODO: add android runtime
+        //TODO: add system uptime
         myDataSet.add(new RecyclerItem("OS Version", Build.VERSION.RELEASE + " (API level " + Build.VERSION.SDK_INT + ")"));
         myDataSet.add(new RecyclerItem("Codename", Build.VERSION.CODENAME));
         myDataSet.add(new RecyclerItem("Bootloader", Build.BOOTLOADER));
+
         String radio = Build.RADIO;
         if (Build.VERSION.SDK_INT >= 14) {
             radio = Build.getRadioVersion();
         }
         myDataSet.add(new RecyclerItem("Radio", radio));
+
         myDataSet.add(new RecyclerItem("Base OS", (Build.VERSION.SDK_INT >= 23) ? Build.VERSION.BASE_OS : "N/A"));
         myDataSet.add(new RecyclerItem("Fingerprint", Build.FINGERPRINT));
         myDataSet.add(new RecyclerItem("Display ID", Build.DISPLAY));
@@ -105,7 +100,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadCPUData() {
-        //TODO: add stuff here
+        //TODO: add CPU hardware
+        //TODO: add CPU amount of cores
+        //TODO: add CPU clock speed
+        //TODO: add instant clock speed for each core
+        //TODO: add CPU load %
     }
 
     private void loadDisplayData() {
@@ -145,16 +144,15 @@ public class MainActivity extends AppCompatActivity {
         //getBatteryCharge();
         //TODO: use a BroadcastReceiver for getting BatteryStatus updates
         Intent intent = this.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-        //charge level
         int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
         int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
         int batteryCharge = level / scale * 100;
         myDataSet.add(new RecyclerItem("Battery level", batteryCharge + "%")); //FIXME: not working, always reports 0
-        //status
+
         int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
         boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING || status == BatteryManager.BATTERY_STATUS_FULL;
         myDataSet.add(new RecyclerItem("Battery status", (isCharging ? "charging" : "discharging")));
-        //charging method
+
         int plugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
         String plug;
         if (plugged == BatteryManager.BATTERY_PLUGGED_AC) {
@@ -167,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
             plug = "Unknown";
         }
         myDataSet.add(new RecyclerItem("Charging through", plug));
-        //health
+
         int health = intent.getIntExtra(BatteryManager.EXTRA_HEALTH, -1);
         String healthState;
         if (health == BatteryManager.BATTERY_HEALTH_GOOD) {
@@ -186,23 +184,24 @@ public class MainActivity extends AppCompatActivity {
             healthState = "Unknown";
         }
         myDataSet.add(new RecyclerItem("Battery health", healthState));
-        //temp
+
         int temp = intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1);
         float realTemp = temp / 10.f;
         myDataSet.add(new RecyclerItem("Battery temperature", realTemp + " C"));
-        //volt
+
         int voltage = intent.getIntExtra(BatteryManager.EXTRA_VOLTAGE, -1);
         myDataSet.add(new RecyclerItem("Battery voltage", voltage + " mV"));
-        //tech
+
         String tech = intent.getStringExtra(BatteryManager.EXTRA_TECHNOLOGY);
         myDataSet.add(new RecyclerItem("Battery technology", tech));
-        //capacity
+
         int currentCapacity = (Build.VERSION.SDK_INT >= 21) ? BatteryManager.BATTERY_PROPERTY_CAPACITY : -1;
         int currentCharging = (Build.VERSION.SDK_INT >= 21) ? BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER : -1;
         myDataSet.add(new RecyclerItem("Battery capacity", currentCapacity + " capacity, " + currentCharging + " mAh")); //FIXME: not really working
     }
 
     private void loadMemoryData() {
+        //TODO: add free RAM %
         ActivityManager.MemoryInfo memInfo = new ActivityManager.MemoryInfo();
         ActivityManager activityManager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
         activityManager.getMemoryInfo(memInfo);
@@ -216,6 +215,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadStorageData() {
+        //TODO: add internal free %
+        //TODO: add internal used abs + %
+        //TODO: add internal storage path (/storage/emulated/0)
+        //TODO: add amount of external storage
+        //TODO: for each external storage available:
+        //TODO:     add free abs + %
+        //TODO:     add used abs + %
+        //TODO:     add total abs
+        //TODO:     add external storage path
+
         StatFs fs = new StatFs(Environment.getRootDirectory().getAbsolutePath());
         long totalFs = -1;
         long freeFs = -1;
@@ -227,7 +236,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadSensorsData() {
-        //TODO: add stuff here
+        //TODO: add data from accelerometer
+        //TODO: add data from light sensor
+        //TODO: add data from gyroscope
+        //TODO: add data from barometer
+        //TODO: add data from step sensor
+        //TODO: add data from magnetometer
+        //TODO: add data from proximity sensor
     }
 
     //TODO: change BroadcastReceiver to be alive and updating data while app is in foreground
