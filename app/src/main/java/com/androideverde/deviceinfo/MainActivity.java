@@ -80,11 +80,19 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void loadSystemData() {
-        //TODO: add android runtime
         //TODO: add system uptime
         myDataSet.add(new RecyclerItem("OS Version", Build.VERSION.RELEASE + " (API level " + Build.VERSION.SDK_INT + ")"));
         myDataSet.add(new RecyclerItem("Codename", Build.VERSION.CODENAME));
         myDataSet.add(new RecyclerItem("Bootloader", Build.BOOTLOADER));
+
+        String javaVmVersion = System.getProperty("java.vm.version");
+        String javaVmName;
+        if (javaVmVersion.startsWith("2")) {
+            javaVmName = "ART";
+        } else {
+            javaVmName = "Dalvik";
+        }
+        myDataSet.add(new RecyclerItem("Java VM", javaVmName + " (" + javaVmVersion + ")"));
 
         String radio = Build.RADIO;
         if (Build.VERSION.SDK_INT >= 14) radio = Build.getRadioVersion();
