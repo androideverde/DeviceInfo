@@ -189,9 +189,25 @@ public class MainActivity extends AppCompatActivity {
         myDataSet.add(new RecyclerItem("Battery voltage", intent.getIntExtra(BatteryManager.EXTRA_VOLTAGE, -1) + " mV"));
         myDataSet.add(new RecyclerItem("Battery technology", intent.getStringExtra(BatteryManager.EXTRA_TECHNOLOGY)));
 
-        int currentCapacity = (Build.VERSION.SDK_INT >= 21) ? BatteryManager.BATTERY_PROPERTY_CAPACITY : -1;
-        int currentCharging = (Build.VERSION.SDK_INT >= 21) ? BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER : -1;
-        myDataSet.add(new RecyclerItem("Battery capacity", currentCapacity + " capacity, " + currentCharging + " mAh")); //FIXME: not really working
+        myDataSet.add(new RecyclerItem("Battery capacity", getBatteryCapacity() + " mAh"));
+    }
+
+    private Double getBatteryCapacity() {
+        Object powerProfile = null;
+        final String POWER_PROFILE_CLASS = "com.android.internal.os.PowerProfile";
+
+        try {
+            powerProfile = Class.forName(POWER_PROFILE_CLASS).getConstructor(Context.class).newInstance(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            return (Double) Class.forName(POWER_PROFILE_CLASS).getMethod("getBatteryCapacity").invoke(powerProfile);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1.d;
+        }
     }
 
     private void loadMemoryData() {
