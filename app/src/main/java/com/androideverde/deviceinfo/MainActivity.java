@@ -230,7 +230,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadMemoryData() {
-        //TODO: add free RAM %
         ActivityManager.MemoryInfo memInfo = new ActivityManager.MemoryInfo();
         ActivityManager activityManager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
         activityManager.getMemoryInfo(memInfo);
@@ -239,7 +238,8 @@ public class MainActivity extends AppCompatActivity {
             totalRAM = memInfo.totalMem / 1024 / 1024;
         }
         long freeRAM = memInfo.availMem / 1024 / 1024;
-        myDataSet.add(new RecyclerItem("RAM", freeRAM + " MB available out of " + totalRAM + " MB"));
+        long freeRAMpercent = 100 * freeRAM / totalRAM;
+        myDataSet.add(new RecyclerItem("RAM", freeRAM + " MB available out of " + totalRAM + " MB (" + freeRAMpercent + "%)"));
         myDataSet.add(new RecyclerItem("Currently in low-memory condition?", memInfo.lowMemory ? "yes" : "no"));
     }
 
