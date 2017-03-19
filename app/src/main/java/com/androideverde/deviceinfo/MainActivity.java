@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StatFs;
+import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -80,7 +81,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void loadSystemData() {
-        //TODO: add system uptime
         myDataSet.add(new RecyclerItem("OS Version", Build.VERSION.RELEASE + " (API level " + Build.VERSION.SDK_INT + ")"));
         myDataSet.add(new RecyclerItem("Codename", Build.VERSION.CODENAME));
         myDataSet.add(new RecyclerItem("Bootloader", Build.BOOTLOADER));
@@ -93,6 +93,17 @@ public class MainActivity extends AppCompatActivity {
             javaVmName = "Dalvik";
         }
         myDataSet.add(new RecyclerItem("Java VM", javaVmName + " (" + javaVmVersion + ")"));
+
+        long uptime = SystemClock.elapsedRealtime() / 1000;
+        long uptimeSeconds = uptime % 60;
+        long uptimeMinutes = (uptime / 60) % 60;
+        long uptimeHours = (uptime / 3600) % 24;
+        long uptimeDays = uptime / 3600 / 24;
+        String uptimeShow = String.format("%d:%d:%d", uptimeHours, uptimeMinutes, uptimeSeconds);
+        if (uptimeDays > 0) {
+            uptimeShow = uptimeDays + " d " + uptimeShow;
+        }
+        myDataSet.add(new RecyclerItem("System uptime", uptimeShow));
 
         String radio = Build.RADIO;
         if (Build.VERSION.SDK_INT >= 14) radio = Build.getRadioVersion();
