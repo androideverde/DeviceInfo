@@ -244,9 +244,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadStorageData() {
-        //TODO: add internal used abs + %
-        //TODO: add internal storage path (/storage/emulated/0)
-        //TODO: add amount of external storage
         //TODO: for each external storage available:
         //TODO:     add free abs + %
         //TODO:     add used abs + %
@@ -258,13 +255,29 @@ public class MainActivity extends AppCompatActivity {
         long freeFs = -1;
         long freeFspercent = -1;
         long usedFs = -1;
+        long usedFspercent = -1;
         if (Build.VERSION.SDK_INT >= 18) {
             totalFs = fs.getBlockCountLong() * fs.getBlockSizeLong() / 1024 / 1024;
             freeFs = fs.getAvailableBlocksLong() * fs.getBlockSizeLong() / 1024 / 1024;
             freeFspercent = 100 * freeFs / totalFs;
-            usedFs = fs.getFreeBytes() / 1024 / 1024;
+            usedFs = totalFs - fs.getFreeBytes() / 1024 / 1024;
+            usedFspercent = 100 * usedFs / totalFs;
         }
-        myDataSet.add(new RecyclerItem("Internal storage", freeFs + " MB available out of " + totalFs + " MB (" + freeFspercent + "% free)"));
+        myDataSet.add(new RecyclerItem("System storage size", totalFs + " MB"));
+        myDataSet.add(new RecyclerItem("Sytem storage in use", usedFs + " MB used (" + usedFspercent + "% used)"));
+        myDataSet.add(new RecyclerItem("System storage free", freeFs + " MB available (" + freeFspercent + "% free)"));
+
+        StatFs extraFs = new StatFs("/storage/emulated/0");
+        if (Build.VERSION.SDK_INT >= 18) {
+            totalFs = extraFs.getBlockCountLong() * extraFs.getBlockSizeLong() / 1024 / 1024;
+            freeFs = extraFs.getAvailableBlocksLong() * extraFs.getBlockSizeLong() / 1024 / 1024;
+            freeFspercent = 100 * freeFs / totalFs;
+            usedFs = totalFs - extraFs.getFreeBytes() / 1024 / 1024;
+            usedFspercent = 100 * usedFs / totalFs;
+        }
+        myDataSet.add(new RecyclerItem("Internal storage size", totalFs + " MB"));
+        myDataSet.add(new RecyclerItem("Internal storage in use", usedFs + " MB used (" + usedFspercent + "% used)"));
+        myDataSet.add(new RecyclerItem("Internal storage free", freeFs + " MB available (" + freeFspercent + "% free)"));
     }
 
     private void loadSensorsData() {
