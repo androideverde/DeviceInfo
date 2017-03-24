@@ -239,12 +239,11 @@ public class MainActivity extends AppCompatActivity {
         }
         long freeRAM = memInfo.availMem / 1024 / 1024;
         long freeRAMpercent = 100 * freeRAM / totalRAM;
-        myDataSet.add(new RecyclerItem("RAM", freeRAM + " MB available out of " + totalRAM + " MB (" + freeRAMpercent + "%)"));
+        myDataSet.add(new RecyclerItem("RAM", freeRAM + " MB available out of " + totalRAM + " MB (" + freeRAMpercent + "% free)"));
         myDataSet.add(new RecyclerItem("Currently in low-memory condition?", memInfo.lowMemory ? "yes" : "no"));
     }
 
     private void loadStorageData() {
-        //TODO: add internal free %
         //TODO: add internal used abs + %
         //TODO: add internal storage path (/storage/emulated/0)
         //TODO: add amount of external storage
@@ -257,11 +256,15 @@ public class MainActivity extends AppCompatActivity {
         StatFs fs = new StatFs(Environment.getRootDirectory().getAbsolutePath());
         long totalFs = -1;
         long freeFs = -1;
+        long freeFspercent = -1;
+        long usedFs = -1;
         if (Build.VERSION.SDK_INT >= 18) {
             totalFs = fs.getBlockCountLong() * fs.getBlockSizeLong() / 1024 / 1024;
             freeFs = fs.getAvailableBlocksLong() * fs.getBlockSizeLong() / 1024 / 1024;
+            freeFspercent = 100 * freeFs / totalFs;
+            usedFs = fs.getFreeBytes() / 1024 / 1024;
         }
-        myDataSet.add(new RecyclerItem("Disk space", freeFs + " MB available out of " + totalFs + " MB"));
+        myDataSet.add(new RecyclerItem("Internal storage", freeFs + " MB available out of " + totalFs + " MB (" + freeFspercent + "% free)"));
     }
 
     private void loadSensorsData() {
