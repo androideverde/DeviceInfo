@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Point;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -67,8 +69,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadDeviceData() {
-        //TODO: add wifi MAC address
-        //TODO: add bluetooth MAC address
         myDataSet.add(new RecyclerItem("Device", Build.DEVICE));
         myDataSet.add(new RecyclerItem("Manufacturer", Build.MANUFACTURER));
         myDataSet.add(new RecyclerItem("Model", Build.MODEL));
@@ -292,8 +292,32 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadNetworkData() {
         //TODO: add IP address IPv4, IPv6
-        //TODO: add data network in use
         //TODO: when in wifi, add name of wifi
+        //TODO: add wifi MAC address
+        // check this: http://robinhenniges.com/en/android6-get-mac-address-programmatically
+        //TODO: add bluetooth MAC address
+
+        String networkType = "UNKNOWN";
+        String networkSubType = "UNKNOWN";
+        ConnectivityManager connManager = (ConnectivityManager) this.getSystemService(CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = connManager.getActiveNetworkInfo();
+        int activeNetworkType = activeNetwork.getType();
+        if (activeNetworkType == ConnectivityManager.TYPE_MOBILE) {
+            networkType = "Mobile";
+            networkSubType = activeNetwork.getSubtypeName();
+        } else if (activeNetworkType == ConnectivityManager.TYPE_WIFI) {
+            networkType = "Wifi";
+        } else if (activeNetworkType == ConnectivityManager.TYPE_WIMAX) {
+            networkType = "WiMAX";
+        } else if (activeNetworkType == ConnectivityManager.TYPE_ETHERNET) {
+            networkType = "Ethernet";
+        } else if (activeNetworkType == ConnectivityManager.TYPE_BLUETOOTH) {
+            networkType = "Bluetooth";
+        } else if (activeNetworkType == ConnectivityManager.TYPE_VPN) {
+            networkType = "VPN";
+        }
+        myDataSet.add(new RecyclerItem("Current network type", networkType + " - " + networkSubType));
+
     }
 
     //TODO: change BroadcastReceiver to be alive and updating data while app is in foreground
